@@ -3,6 +3,8 @@ package com.example.financialmanager.functions
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,6 +18,8 @@ import com.example.financialmanager.viewModel.HomeViewModel
 
 @Composable
 fun ContentColumn(viewModel: HomeViewModel, showBankLoanDialog: MutableState<Boolean>) {
+    val showWorkDialog = remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -70,8 +74,29 @@ fun ContentColumn(viewModel: HomeViewModel, showBankLoanDialog: MutableState<Boo
                     contentDescription = "Work",
                     modifier = Modifier
                         .size(80.dp)
+                        .clickable {
+                            viewModel.incrementClicks()
+                            showWorkDialog.value = true
+                        }
                 )
             }
         }
+    }
+
+    if (showWorkDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showWorkDialog.value = false },
+            title = { Text(text = "Work") },
+            text = {
+                Text(
+                    text = "Click the Work image ${viewModel.requiredClicks.value} times to gain $50. You have clicked ${viewModel.currentClicks.value} times."
+                )
+            },
+            confirmButton = {
+                Button(onClick = { showWorkDialog.value = false }) {
+                    Text(text = "OK")
+                }
+            }
+        )
     }
 }

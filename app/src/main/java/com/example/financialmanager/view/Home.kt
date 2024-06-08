@@ -7,7 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.viewmodel.compose.viewModel // Ensure this import is correct
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.financialmanager.R
 import com.example.financialmanager.functions.BankLoanDialog
 import com.example.financialmanager.functions.ContentColumn
