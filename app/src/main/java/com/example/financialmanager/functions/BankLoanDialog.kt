@@ -13,13 +13,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun BankLoanDialog(onDismiss: () -> Unit) {
+fun BankLoanDialog(onDismiss: () -> Unit, onConfirm: (Int) -> Unit) {
     var amount by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = {
+                val enteredAmount = amount.toIntOrNull() ?: 0
+                onConfirm(enteredAmount)
+                onDismiss()
+            }) {
                 Text("OK")
             }
         },
