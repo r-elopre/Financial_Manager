@@ -19,7 +19,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.material3.ButtonDefaults
 
-
 @Composable
 fun BoxScope.StockCategories(
     showDialog: MutableState<Boolean>,
@@ -38,16 +37,22 @@ fun BoxScope.StockCategories(
     val commercialStockPrice = remember { mutableStateOf(2.0) }
     val financialStockPrice = remember { mutableStateOf(2.0) }
 
+    // Track price increase or decrease
+    val techPriceIncreased = remember { mutableStateOf(true) }
+    val economyPriceIncreased = remember { mutableStateOf(true) }
+    val commercialPriceIncreased = remember { mutableStateOf(true) }
+    val financialPriceIncreased = remember { mutableStateOf(true) }
+
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             while (true) {
                 delay(10000)
-                updateStockPrice(techStockPrice)
-                updateStockPrice(economyStockPrice)
-                updateStockPrice(commercialStockPrice)
-                updateStockPrice(financialStockPrice)
+                updateStockPrice(techStockPrice, techPriceIncreased)
+                updateStockPrice(economyStockPrice, economyPriceIncreased)
+                updateStockPrice(commercialStockPrice, commercialPriceIncreased)
+                updateStockPrice(financialStockPrice, financialPriceIncreased)
             }
         }
     }
@@ -83,7 +88,7 @@ fun BoxScope.StockCategories(
                 Text(
                     text = "Price stock $${String.format("%.2f", techStockPrice.value)}",
                     fontSize = 12.sp,
-                    color = Color.Black
+                    color = if (techPriceIncreased.value) Color.Green else Color.Red
                 )
             }
             Column(
@@ -107,7 +112,7 @@ fun BoxScope.StockCategories(
                 Text(
                     text = "Price stock $${String.format("%.2f", economyStockPrice.value)}",
                     fontSize = 12.sp,
-                    color = Color.Black
+                    color = if (economyPriceIncreased.value) Color.Green else Color.Red
                 )
             }
             Column(
@@ -132,7 +137,7 @@ fun BoxScope.StockCategories(
                 Text(
                     text = "Price stock $${String.format("%.2f", commercialStockPrice.value)}",
                     fontSize = 12.sp,
-                    color = Color.White
+                    color = if (commercialPriceIncreased.value) Color.Green else Color.Red
                 )
             }
             Column(
@@ -157,7 +162,7 @@ fun BoxScope.StockCategories(
                 Text(
                     text = "Price stock $${String.format("%.2f", financialStockPrice.value)}",
                     fontSize = 12.sp,
-                    color = Color.White
+                    color = if (financialPriceIncreased.value) Color.Green else Color.Red
                 )
             }
         }
@@ -224,11 +229,13 @@ fun BoxScope.StockCategories(
     }
 }
 
-fun updateStockPrice(stockPrice: MutableState<Double>) {
+fun updateStockPrice(stockPrice: MutableState<Double>, priceIncreased: MutableState<Boolean>) {
     val chance = (1..100).random()
     if (chance <= 60) {
         stockPrice.value *= 1.3
+        priceIncreased.value = true
     } else {
         stockPrice.value /= 1.3
+        priceIncreased.value = false
     }
 }
