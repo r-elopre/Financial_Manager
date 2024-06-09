@@ -38,4 +38,18 @@ class HomeViewModel : ViewModel() {
             generateRequiredClicks()
         }
     }
+
+    // New methods to handle buying and selling stocks
+    fun buyStock(stockPrice: Double) {
+        val price = stockPrice.toInt()
+        if (_coinAmount.value >= price) {
+            _coinAmount.value -= price
+        } else {
+            // Optionally, you can show an error message here if there's not enough coins
+        }
+    }
+
+    fun sellStock(stockPrice: Double) {
+        _coinAmount.value += stockPrice.toInt()
+    }
 }

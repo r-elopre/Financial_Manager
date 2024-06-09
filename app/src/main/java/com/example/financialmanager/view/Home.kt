@@ -32,12 +32,13 @@ fun HomeScreen() {
 
         ContentColumn(viewModel, showBankLoanDialog)
 
-        FamilyBox()
+        //FamilyBox()
 
         StockCategories(
             showDialog = remember { mutableStateOf(false) },
             dialogText = remember { mutableStateOf("") },
-            alignment = Alignment.BottomCenter // Pass alignment here
+            alignment = Alignment.BottomCenter, // Pass alignment here
+            viewModel = viewModel // Pass the viewModel here
         )
     }
 

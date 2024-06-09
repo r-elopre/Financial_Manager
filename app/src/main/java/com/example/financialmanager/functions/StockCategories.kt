@@ -14,13 +14,44 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.financialmanager.viewModel.HomeViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import androidx.compose.material3.ButtonDefaults
+
 
 @Composable
 fun BoxScope.StockCategories(
     showDialog: MutableState<Boolean>,
     dialogText: MutableState<String>,
-    alignment: Alignment = Alignment.BottomCenter // Accept alignment as a parameter
+    alignment: Alignment = Alignment.BottomCenter, // Accept alignment as a parameter
+    viewModel: HomeViewModel // Add viewModel as a parameter
 ) {
+    val techStockCount = remember { mutableStateOf(0) }
+    val economyStockCount = remember { mutableStateOf(0) }
+    val commercialStockCount = remember { mutableStateOf(0) }
+    val financialStockCount = remember { mutableStateOf(0) }
+    val selectedStockCount = remember { mutableStateOf(techStockCount) }
+
+    val techStockPrice = remember { mutableStateOf(2.0) }
+    val economyStockPrice = remember { mutableStateOf(2.0) }
+    val commercialStockPrice = remember { mutableStateOf(2.0) }
+    val financialStockPrice = remember { mutableStateOf(2.0) }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            while (true) {
+                delay(10000)
+                updateStockPrice(techStockPrice)
+                updateStockPrice(economyStockPrice)
+                updateStockPrice(commercialStockPrice)
+                updateStockPrice(financialStockPrice)
+            }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -39,6 +70,7 @@ fun BoxScope.StockCategories(
                     .padding(8.dp)
                     .clickable {
                         dialogText.value = "You clicked Technology stock"
+                        selectedStockCount.value = techStockCount
                         showDialog.value = true
                     },
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -49,7 +81,7 @@ fun BoxScope.StockCategories(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Price stock $2",
+                    text = "Price stock $${String.format("%.2f", techStockPrice.value)}",
                     fontSize = 12.sp,
                     color = Color.Black
                 )
@@ -62,6 +94,7 @@ fun BoxScope.StockCategories(
                     .padding(8.dp)
                     .clickable {
                         dialogText.value = "You clicked Economy stock"
+                        selectedStockCount.value = economyStockCount
                         showDialog.value = true
                     },
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -72,7 +105,7 @@ fun BoxScope.StockCategories(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Price stock $2",
+                    text = "Price stock $${String.format("%.2f", economyStockPrice.value)}",
                     fontSize = 12.sp,
                     color = Color.Black
                 )
@@ -85,6 +118,7 @@ fun BoxScope.StockCategories(
                     .padding(8.dp)
                     .clickable {
                         dialogText.value = "You clicked Commercial stock"
+                        selectedStockCount.value = commercialStockCount
                         showDialog.value = true
                     },
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -96,7 +130,7 @@ fun BoxScope.StockCategories(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Price stock $2",
+                    text = "Price stock $${String.format("%.2f", commercialStockPrice.value)}",
                     fontSize = 12.sp,
                     color = Color.White
                 )
@@ -109,6 +143,7 @@ fun BoxScope.StockCategories(
                     .padding(8.dp)
                     .clickable {
                         dialogText.value = "You clicked Financial stock"
+                        selectedStockCount.value = financialStockCount
                         showDialog.value = true
                     },
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -120,7 +155,7 @@ fun BoxScope.StockCategories(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Price stock $2",
+                    text = "Price stock $${String.format("%.2f", financialStockPrice.value)}",
                     fontSize = 12.sp,
                     color = Color.White
                 )
@@ -133,14 +168,67 @@ fun BoxScope.StockCategories(
             onDismissRequest = {
                 showDialog.value = false
             },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Stock you are holding ${selectedStockCount.value.value}")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+                        TextButton(
+                            onClick = {
+                                val stockPrice = when (selectedStockCount.value) {
+                                    techStockCount -> techStockPrice.value
+                                    economyStockCount -> economyStockPrice.value
+                                    commercialStockCount -> commercialStockPrice.value
+                                    financialStockCount -> financialStockPrice.value
+                                    else -> 0.0
+                                }
+                                viewModel.buyStock(stockPrice)
+                                selectedStockCount.value.value += 1
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Green
+                            )
+                        ) {
+                            Text("Buy 1 stock")
+                        }
+
+                        TextButton(
+                            onClick = {
+                                if (selectedStockCount.value.value > 0) {
+                                    val stockPrice = when (selectedStockCount.value) {
+                                        techStockCount -> techStockPrice.value
+                                        economyStockCount -> economyStockPrice.value
+                                        commercialStockCount -> commercialStockPrice.value
+                                        financialStockCount -> financialStockPrice.value
+                                        else -> 0.0
+                                    }
+                                    viewModel.sellStock(stockPrice)
+                                    selectedStockCount.value.value -= 1
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Red
+                            )
+                        ) {
+                            Text("Sell stock position")
+                        }
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(onClick = { showDialog.value = false }) {
                     Text("OK")
                 }
-            },
-            text = {
-                Text(dialogText.value)
             }
         )
+    }
+}
+
+fun updateStockPrice(stockPrice: MutableState<Double>) {
+    val chance = (1..100).random()
+    if (chance <= 60) {
+        stockPrice.value *= 1.3
+    } else {
+        stockPrice.value /= 1.3
     }
 }
